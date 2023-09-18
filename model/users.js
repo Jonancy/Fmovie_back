@@ -24,7 +24,14 @@ const UserSchema = new mongoose.Schema({
         type:String,
         default:'user',
         enum:['user','admin']
-    }
+    },
+    comments:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:'Comment'
+        }
+]
+
    
 })
 

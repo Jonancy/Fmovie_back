@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt')
 const successHandler = require("../utils/successHandler")
 const {createJWT} = require("../utils/jsonWT")
 const errorHandler = require("../utils/errorHandler")
+const { commentModel } = require("../model/comments")
 // const errorHandler = require("../utils/errorHandler")
 
 
@@ -61,5 +62,94 @@ const userAuthCheck=(req,res)=>{
   
 }
 
+//!For adding user Comments
+const addUserComments=async(req,res,next)=>{
 
-module.exports = {addUser,checkUser,userAuthCheck}
+    try{
+        console.log(req)
+        const{comment} = req.body
+
+        // if(comment = ''){
+        //     throw new Error('Cant be empty ')
+        // }
+        // const userId = parseInt(id,10)
+        const userId = req.params.id
+        console.log(userId)
+        const User = await userModel.findById(userId)
+        // console.log(User)
+        // const userId = User._id
+        // const role = User.role
+        // console.log(role)
+        // console.log(userId)
+    
+        // if(!User){
+        //     res.send('User not found')
+        // }
+        const userComments =await commentModel.create({comment,userId})
+    
+        //!This is for adding the comment object id to the users document for like creating a relation lol 
+        User.comments.push(userComments._id);
+        await User.save();
+    
+        if(!userComments){
+            console.log('failed')
+        }else{
+    
+            return successHandler(res,{},'New Comment added')
+        } 
+    }catch(e){
+        next(e)
+    }
+
+}
+
+
+//!Using this one
+const getUserCommentByUser=async(req,res,next)=>{
+
+    try{
+
+        const user_id = req.params.id
+
+        //!Populate is used to retrive referenced documents in this situation the comment is our refrenced document 
+        const user = await userModel.findById({_id:user_id}).populate('comments')
+
+        // if(!user){
+        //     throw new Error('User dosent exists')
+        // }
+        
+        const userComments = user.comments
+
+        //!Using map cuz its an array and One user has multiple comments 
+        const userComm = userComments.map((comments)=>comments.comment)
+        console.log(userComm)
+
+        return successHandler(res,{userComm},"User's comments",)
+
+
+    }catch(e){
+        next(e)
+    }
+    
+}
+
+
+//!Not using this one 
+const getUserComments=async(req,res)=>{
+    const user_id = req.params.id
+    const userName = await userModel.findById({_id:user_id})
+    console.log(userName)
+
+    const userComments =await commentModel.find({userId:user_id})
+    
+    const comments = userComments.map((comment)=>comment.comment)
+    console.log(comments)
+
+    if(!userComments){
+        console.log('no user')
+    }
+    res.send(comments)
+}
+
+
+module.exports = {addUser,checkUser,userAuthCheck, addUserComments, getUserComments,getUserCommentByUser}
