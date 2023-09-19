@@ -19,12 +19,12 @@ router.post('/login',loginUserMiddleware, checkUser)
 router.get('/verify', [...authorizeUserandAdminRole()], userAuthCheck);
 
 
-router.post('/addComment/:id',addUserComments)
+router.post('/addComment/:id/:movie_id',addUserComments)
 
 router.get('/getComment/:id',getUserComments)
 
 
-router.get('/getUserComments/:id', getUserCommentByUser)
+router.get('/getUserComments/:id/:movie_id', getUserCommentByUser)
 
 
 //   router.get('/verify-admin', jwtVerifiction, authAdmin, (req, res) => {

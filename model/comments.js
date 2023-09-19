@@ -7,7 +7,11 @@ const commentSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    
+    movieId:{
+        type:Number,
+        required:true
+    }
+    ,
     //!As there is no relation in mongo db this is the one way to like make a relation like primary or foreign key, 
     userId:{
         type:mongoose.Schema.Types.ObjectId,
