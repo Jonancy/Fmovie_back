@@ -52,7 +52,7 @@ const checkUser = async (req, res) => {
 const userAuthCheck = (req, res) => {
   console.log(req.user);
   const id = req.user._id;
-  const name = req.user.name;  
+  const name = req.user.name;
   const email = req.user.email;
   const image = req.user.image;
   const role = req.user.role;
@@ -74,10 +74,48 @@ const userAuthCheck = (req, res) => {
   }
 };
 
+const getAllUsers =async(req, res) => {
+  const users = await userModel.find();
+
+  const User = users.map((user)=>{
+    return{
+      name:user.name,
+      email:user.email,
+      image:user.image,
+      role:user.role
+    }
+  })
+
+  return successHandler(res,{User},'All users')
+};
+
+const updateUser = (req, res) => {
+  const { name, password, image, role, id } = req.User;
+
+  const newUser = userModel.findByIdAndUpdate(
+    { _id: id },
+    { name: name, password: password, image: image }
+  );
+
+  if (newUser) {
+    return successHandler(
+      res,
+      {
+        userName: name,
+        password: password,
+        userImage: image,
+        role: role,
+        userId: id,
+      },
+      "User updated successfully"
+    );
+  }
+};
 
 module.exports = {
   addUser,
   checkUser,
   userAuthCheck,
-  
+  updateUser,
+  getAllUsers
 };

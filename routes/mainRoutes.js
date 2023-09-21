@@ -1,14 +1,15 @@
 const express = require('express')
 const {  authorizeUserandAdminRole, loginUserMiddleware} = require('../middleware/userAuth')
-const {addUser, checkUser, userAuthCheck} = require('../controller/userController')
+const {addUser, checkUser, userAuthCheck, updateUser, getAllUsers} = require('../controller/userController')
 const router = express.Router()
 const multer = require('multer')
 const successHandler = require('../utils/successHandler')
 const { addUserComments, getUserComments, getUserCommentByUser } = require('../controller/commentController')
+const { checkUpdateUser } = require('../middleware/userUpdate')
 const upload = multer({dest:'uploads/'})
 
 
-// router.get('/', )
+router.get('/userDetails', getAllUsers)
 
 //?For signUp user
 router.post('/addUser',upload.single('image'), addUser)
@@ -19,13 +20,17 @@ router.post('/login',loginUserMiddleware, checkUser)
 //!For verifying jwt and authorizing the roles
 router.get('/verify', [...authorizeUserandAdminRole()], userAuthCheck);
 
-
+//!Add commments
 router.post('/addComment/:id/:movie_id',addUserComments)
 
+//!Specific users comments
 router.get('/getComment/:id',getUserComments)
 
-
+//!User comments by movie id
 router.get('/getUserComments/:movie_id', getUserCommentByUser)
+
+//!Update user
+router.patch('/updateUser/:id',upload.single('image'), checkUpdateUser,updateUser)
 
 
 //   router.get('/verify-admin', jwtVerifiction, authAdmin, (req, res) => {
