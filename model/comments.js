@@ -10,8 +10,11 @@ const commentSchema = new mongoose.Schema({
     movieId:{
         type:Number,
         required:true
-    }
-    ,
+    },
+    // date:{
+    //     type:Date,
+    //     date:Date.now()
+    // }
     //!As there is no relation in mongo db this is the one way to like make a relation like primary or foreign key, 
     userId:{
         type:mongoose.Schema.Types.ObjectId,
@@ -21,4 +24,4 @@ const commentSchema = new mongoose.Schema({
 
 const commentModel = mongoose.model('Comment',commentSchema)
 
-module.exports = {commentModel}
+module.exports = commentModel

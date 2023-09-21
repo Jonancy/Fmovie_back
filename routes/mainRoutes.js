@@ -1,9 +1,10 @@
 const express = require('express')
 const {  authorizeUserandAdminRole, loginUserMiddleware} = require('../middleware/userAuth')
-const {addUser, checkUser, userAuthCheck, addUserComments, getUserComments, getUserCommentByUser} = require('../controller/userController')
+const {addUser, checkUser, userAuthCheck} = require('../controller/userController')
 const router = express.Router()
 const multer = require('multer')
 const successHandler = require('../utils/successHandler')
+const { addUserComments, getUserComments, getUserCommentByUser } = require('../controller/commentController')
 const upload = multer({dest:'uploads/'})
 
 
@@ -24,7 +25,7 @@ router.post('/addComment/:id/:movie_id',addUserComments)
 router.get('/getComment/:id',getUserComments)
 
 
-router.get('/getUserComments/:id/:movie_id', getUserCommentByUser)
+router.get('/getUserComments/:movie_id', getUserCommentByUser)
 
 
 //   router.get('/verify-admin', jwtVerifiction, authAdmin, (req, res) => {
