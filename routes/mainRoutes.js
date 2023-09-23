@@ -1,6 +1,6 @@
 const express = require('express')
 const {  authorizeUserandAdminRole, loginUserMiddleware} = require('../middleware/userAuth')
-const {addUser, checkUser, userAuthCheck, updateUser, getAllUsers} = require('../controller/userController')
+const {addUser, checkUser, userAuthCheck, updateUser, getAllUsers, deleteUser} = require('../controller/userController')
 const router = express.Router()
 const multer = require('multer')
 const successHandler = require('../utils/successHandler')
@@ -10,6 +10,8 @@ const upload = multer({dest:'uploads/'})
 
 
 router.get('/userDetails', getAllUsers)
+
+router.delete('/userDelete/:id', deleteUser)
 
 //?For signUp user
 router.post('/addUser',upload.single('image'), addUser)

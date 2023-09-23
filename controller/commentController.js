@@ -35,6 +35,8 @@ const addUserComments = async (req, res, next) => {
         movieId,
         userId,
       });
+      
+      console.log(userComments);
   
       //!This is for adding the comment object id to the users document for like creating a relation lol
       User.comments.push(userComments._id);
@@ -49,6 +51,11 @@ const addUserComments = async (req, res, next) => {
       next(e);
     }
   };
+
+
+  const deleteUserComment=()=>{
+
+  }
   
   //!Using this one
   const getUserCommentByUser = async (req, res, next) => {
@@ -90,6 +97,7 @@ const addUserComments = async (req, res, next) => {
       //!Map is used cuz there are too many documents or tables and find function returns different docs
       const usersAllComnments = commentsForMovie.map((comment) => {
           return{
+              userId:comment.userId._id,
               name:comment.userId.name,
               comment:comment.comment,
               movieId:comment.movieId,

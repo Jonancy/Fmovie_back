@@ -3,12 +3,18 @@ const bcrypt = require("bcrypt");
 const successHandler = require("../utils/successHandler");
 const { createJWT } = require("../utils/jsonWT");
 const errorHandler = require("../utils/errorHandler");
+const commentModel = require("../model/comments");
 // const errorHandler = require("../utils/errorHandler")
 
 const addUser = async (req, res, next) => {
-  const { name, email, password } = req.body;
-  const image = req.file.path;
   try {
+    const { name, email, password } = req.body;
+    const image = req.file.path;
+
+    if(!name || !email ||!password || !image){
+      throw new Error('Fill up all the forms')
+    }
+
     const user = await userModel.findOne({ email });
     if (user) {
       throw Error("User already exists");
@@ -79,6 +85,7 @@ const getAllUsers =async(req, res) => {
 
   const User = users.map((user)=>{
     return{
+      id:user._id,
       name:user.name,
       email:user.email,
       image:user.image,
@@ -88,6 +95,37 @@ const getAllUsers =async(req, res) => {
 
   return successHandler(res,{User},'All users')
 };
+
+
+
+//! When the user is deleted its comments should also be deleted
+const deleteUser=async(req,res,next)=>{
+
+  try{
+    const userid = req.params.id
+   
+    //!So at first user is searched and is not deleted at first cuz when its deleted then after the comments will not have user id
+    const user = await userModel.findById(userid).populate('comments')
+    console.log(user)
+    
+    //!Then after using populate to fetch the refrenced collection the comments of the user is looped as its array and has multiple docs init and then 
+    //! from the comment collection the id of the comment of the specific user is deleted 
+    user.comments.map(async(comment)=>{
+      await commentModel.findByIdAndDelete(comment._id)
+    })
+    
+    const deleteUser = await userModel.findByIdAndDelete(userid)
+
+    if(!deleteUser){
+      throw new Error('User has already been deleted')
+    }else{
+      return successHandler(res,{},'User deleted')
+    }
+  }catch(e){
+    next(e)
+  }
+
+}
 
 const updateUser = (req, res) => {
   const { name, password, image, role, id } = req.User;
@@ -117,5 +155,6 @@ module.exports = {
   checkUser,
   userAuthCheck,
   updateUser,
-  getAllUsers
+  getAllUsers,
+  deleteUser
 };
