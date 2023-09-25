@@ -53,7 +53,34 @@ const addUserComments = async (req, res, next) => {
   };
 
 
-  const deleteUserComment=()=>{
+  const deleteUserComment=async(req,res,next)=>{
+
+    const userId = req.params.userId
+    // const movieId = req.params.movieId
+    const commentId = req.params.commentId
+    // console.log(req)
+    const userComments =await commentModel.findById({_id:commentId}).populate('userId')
+    // console.log(userComments);
+
+    //!$pull is the operator of the mongoose which is used to remove the elements from array that meets required condition
+    //!So in this context if user id matches with the requested id then the users comment of that movie id will be deleted from the array of the user's 
+    const updateUser = await userModel.findByIdAndUpdate({_id:userId}, {$pull:{comments:commentId}})
+    console.log(updateUser);
+
+    const deleteComments = await commentModel.findByIdAndDelete({_id:commentId})
+  
+    //!Need to find the index of the array list 
+
+    // const user = await userModel.findById(userId).populate('comments')
+    // const userIdCom = user.comments
+    // // console.log(user)
+    // const delUserComm = user.comments.filter((comments)=> comments._id.equals( commentId))
+    // console.log(delUserComm);
+    // const commen = user.comments.includes(commentId)
+    
+    // await userModel.findByIdAndDelete(commen)
+    // await commentModel.findByIdAndDelete({_id:commentId})
+    
 
   }
   
@@ -98,6 +125,7 @@ const addUserComments = async (req, res, next) => {
       const usersAllComnments = commentsForMovie.map((comment) => {
           return{
               userId:comment.userId._id,
+              commentId: comment._id,
               name:comment.userId.name,
               comment:comment.comment,
               movieId:comment.movieId,
@@ -160,4 +188,4 @@ const addUserComments = async (req, res, next) => {
 
 
 
-  module.exports ={addUserComments,getUserCommentByUser,getUserComments}
+  module.exports ={addUserComments,getUserCommentByUser,getUserComments, deleteUserComment}
