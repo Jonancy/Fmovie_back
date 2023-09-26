@@ -4,7 +4,7 @@ const {addUser, checkUser, userAuthCheck, updateUser, getAllUsers, deleteUser} =
 const router = express.Router()
 const multer = require('multer')
 const successHandler = require('../utils/successHandler')
-const { addUserComments, getUserComments, getUserCommentByUser, deleteUserComment } = require('../controller/commentController')
+const { addUserComments, getUserComments, getUserCommentByUser, deleteUserComment, updateUserComments } = require('../controller/commentController')
 const { checkUpdateUser } = require('../middleware/userUpdate')
 const upload = multer({dest:'uploads/'})
 
@@ -35,6 +35,8 @@ router.get('/getUserComments/:movie_id', getUserCommentByUser)
 router.patch('/updateUser/:id',upload.single('image'), checkUpdateUser,updateUser)
 
 router.delete('/deleteUserComments/:userId/:commentId', deleteUserComment)
+
+router.patch('/updateUserComments/:commentId/:movieId', updateUserComments)
 
 
 //   router.get('/verify-admin', jwtVerifiction, authAdmin, (req, res) => {

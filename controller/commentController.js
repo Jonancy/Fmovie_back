@@ -10,10 +10,12 @@ const addUserComments = async (req, res, next) => {
     try {
       let {comment} = req.body;
       console.log(comment);
-      // if(comment = ''){
-      //     throw new Error('Cant be empty ')
-      // }
-      // const userId = parseInt(id,10)
+      
+
+      if(!comment || comment === ''){
+        throw new Error('Comment cant be empty')
+      }
+
       const userId = req.params.id;
       console.log(userId);
   
@@ -54,32 +56,37 @@ const addUserComments = async (req, res, next) => {
 
 
   const deleteUserComment=async(req,res,next)=>{
+    try{
 
-    const userId = req.params.userId
-    // const movieId = req.params.movieId
-    const commentId = req.params.commentId
-    // console.log(req)
-    const userComments =await commentModel.findById({_id:commentId}).populate('userId')
-    // console.log(userComments);
-
-    //!$pull is the operator of the mongoose which is used to remove the elements from array that meets required condition
-    //!So in this context if user id matches with the requested id then the users comment of that movie id will be deleted from the array of the user's 
-    const updateUser = await userModel.findByIdAndUpdate({_id:userId}, {$pull:{comments:commentId}})
-    console.log(updateUser);
-
-    const deleteComments = await commentModel.findByIdAndDelete({_id:commentId})
+      const userId = req.params.userId
+      // const movieId = req.params.movieId
+      const commentId = req.params.commentId
+      // console.log(req)
+      // const userComments =await commentModel.findById({_id:commentId}).populate('userId')
+      // console.log(userComments);
   
-    //!Need to find the index of the array list 
-
-    // const user = await userModel.findById(userId).populate('comments')
-    // const userIdCom = user.comments
-    // // console.log(user)
-    // const delUserComm = user.comments.filter((comments)=> comments._id.equals( commentId))
-    // console.log(delUserComm);
-    // const commen = user.comments.includes(commentId)
+      //!$pull is the operator of the mongoose which is used to remove the elements from array that meets required condition
+      //!So in this context if user id matches with the requested id then the users comment of that movie id will be deleted from the array of the user's 
+      const updateUser = await userModel.findByIdAndUpdate({_id:userId}, {$pull:{comments:commentId}})
+      console.log(updateUser);
+  
+      await commentModel.findByIdAndDelete({_id:commentId})
     
-    // await userModel.findByIdAndDelete(commen)
-    // await commentModel.findByIdAndDelete({_id:commentId})
+      return successHandler(res,{},'Comment deleted Successfully')
+      //!Need to find the index of the array list 
+  
+      // const user = await userModel.findById(userId).populate('comments')
+      // const userIdCom = user.comments
+      // // console.log(user)
+      // const delUserComm = user.comments.filter((comments)=> comments._id.equals( commentId))
+      // console.log(delUserComm);
+      // const commen = user.comments.includes(commentId)
+      
+      // await userModel.findByIdAndDelete(commen)
+      // await commentModel.findByIdAndDelete({_id:commentId})
+    }catch(e){
+      next(e)
+    }
     
 
   }
@@ -129,7 +136,8 @@ const addUserComments = async (req, res, next) => {
               name:comment.userId.name,
               comment:comment.comment,
               movieId:comment.movieId,
-              image:comment.userId.image
+              image:comment.userId.image,
+              createdAt:comment.createdAt
           }
       });
       // console.log(commentsUserName);
@@ -186,6 +194,52 @@ const addUserComments = async (req, res, next) => {
     res.send(comments);
   };
 
+  const updateUserComments=async(req,res,next)=>{
+
+    try{
+      const commentId = req.params.commentId
+      const movieId = req.params.movieId
+      const{comment} = req.body
+
+  
+      if(!comment || comment === ''){
+        throw new Error("Comment can't be empty ")
+      }
+  
+      const userComments = await commentModel.findByIdAndUpdate({_id:commentId},{comment:comment})
+
+      const commentsForMovie = await commentModel
+      .find({ movieId: movieId })
+      .populate("userId");
+      
+      // const User = await commentModel.findById(commentId).populate('userId')
+
+      if(!userComments){
+        throw new Error('Update Failed')
+      }
+
+      //!Sending all the comments again so that the user will see all the updated comments 
+      const usersAllComnments = commentsForMovie.map((comment) => {
+        return{
+            userId:comment.userId._id,
+            commentId: comment._id,
+            name:comment.userId.name,
+            comment:comment.comment,
+            movieId:comment.movieId,
+            image:comment.userId.image,
+            createdAt:comment.createdAt
+            // updatedAt:comment.updatedAt,
+            // changed:true
+        }
+    });
+
+      successHandler(res,{usersAllComnments},'Updated Comments')
+    }catch(e){
+      next(e)
+    }
+
+  }
 
 
-  module.exports ={addUserComments,getUserCommentByUser,getUserComments, deleteUserComment}
+
+  module.exports ={addUserComments,getUserCommentByUser,getUserComments, deleteUserComment,updateUserComments}
